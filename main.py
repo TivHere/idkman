@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 import logging
@@ -19,13 +20,14 @@ def main():
         setup_logging()
         logger = logging.getLogger(__name__)
         logger.info("Starting Brownies Café Bot...")
-        keep_alive()  # For Replit/Render
+
+        keep_alive()
         bot = BrowniesCafeBot()
         bot.start()
     except KeyboardInterrupt:
         logger.info("Bot stopped by user")
     except Exception as e:
-        logger.error(f"Fatal error occurred: {e}")
+        logger.error(f"Fatal error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
