@@ -4,10 +4,7 @@ class Config:
     def __init__(self):
         self.BOT_TOKEN = os.getenv("BOT_TOKEN", "")
         self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-
-        if not self.BOT_TOKEN:
-            raise ValueError("BOT_TOKEN environment variable is required")
-
+        
         self.CAFE_NAME = "Brownies Café"
         self.OPENING_HOURS = "Mon–Sun: 9AM – 9PM"
         self.LOCATION = "123 Jalan Brownies, KL"
@@ -45,12 +42,10 @@ class Config:
             ]
         }
 
-        self.OPENAI_ENABLED = bool(self.OPENAI_API_KEY)
-
         self.FIRST_TIME_MESSAGE = (
             f"🎉 Welcome to {self.CAFE_NAME}! ☕🍫\n\n"
             "We're delighted to have you here! Our cozy café offers the finest brownies and coffee in town.\n\n"
-            "Ready to explore what we have to offer? Tap a button below to get started!"
+            "Ready to explore what we have to offer? Tap the button below to get started!"
         )
 
         self.WELCOME_MESSAGE = (
@@ -60,19 +55,21 @@ class Config:
             "• 📍 Location details (/location)\n"
             "• 🕘 Opening hours (/hours)\n"
             "• ❓ General questions\n\n"
-            "Just type what you're looking for or use the buttons below!"
+            "Just type what you're looking for!"
         )
 
+        self.OPENAI_ENABLED = bool(self.OPENAI_API_KEY)
+
     def get_menu_text(self) -> str:
-        menu_text = f"📋 *{self.CAFE_NAME} Menu*\n\n"
+        text = f"📋 *{self.CAFE_NAME} Menu*\n\n"
         for category, items in self.MENU.items():
-            menu_text += f"*{category}*\n"
+            text += f"*{category}*\n"
             for item in items:
-                menu_text += f"• {item}\n"
-            menu_text += "\n"
-        menu_text += "💳 We accept cash and cards\n"
-        menu_text += "🚚 Delivery available via Grab/Foodpanda"
-        return menu_text
+                text += f"• {item}\n"
+            text += "\n"
+        text += "💳 We accept cash and cards\n"
+        text += "🚚 Delivery available via Grab/Foodpanda"
+        return text
 
     def get_location_text(self) -> str:
         return (
