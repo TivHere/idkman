@@ -1,12 +1,32 @@
-import telebot
 import os
+import sys
+import logging
+from bot import BrowniesCafeBot
+from keep_alive import keep_alive
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-bot = telebot.TeleBot(BOT_TOKEN)
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('bot.log', mode='a')
+        ]
+    )
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "✅ Bot is working!")
+def main():
+    try:
+        setup_logging()
+        logger = logging.getLogger(__name__)
+        logger.info("Starting Brownies Café Bot...")
+        keep_alive()  # For Replit/Render
+        bot = BrowniesCafeBot()
+        bot.start()
+    except KeyboardInterrupt:
+        logger.info("Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Fatal error occurred: {e}")
+        sys.exit(1)
 
-print("Bot running...")
-bot.infinity_polling()
+if __name__ == "__main__":
+    main()

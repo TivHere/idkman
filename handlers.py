@@ -1,49 +1,54 @@
+import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 class BotHandlers:
     def __init__(self, config):
         self.config = config
+        self.logger = logging.getLogger(__name__)
 
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        keyboard = [[InlineKeyboardButton("📋 Menu", callback_data='menu'),
-                     InlineKeyboardButton("📍 Location", callback_data='location'),
-                     InlineKeyboardButton("🕘 Hours", callback_data='hours')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text("Welcome to Brownies Café!", reply_markup=reply_markup)
+        await update.message.reply_text(
+            self.config.FIRST_TIME_MESSAGE,
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("View Menu 🍽️", callback_data="menu")],
+                [InlineKeyboardButton("Opening Hours 🕘", callback_data="hours")],
+                [InlineKeyboardButton("Location 📍", callback_data="location")]
+            ])
+        )
 
     async def menu_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(self.config.get_menu_text())
+        await update.message.reply_text(self.config.get_menu_text(), parse_mode='Markdown')
 
     async def location_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(self.config.get_location_text())
+        await update.message.reply_text(self.config.get_location_text(), parse_mode='Markdown')
 
     async def hours_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(self.config.get_hours_text())
+        await update.message.reply_text(self.config.get_hours_text(), parse_mode='Markdown')
+
+    async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        await update.message.reply_text(self.config.WELCOME_MESSAGE)
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text("Please use the buttons or type /start")
+        message = update.message.text.lower()
+        if "menu" in message:
+            await self.menu_command(update, context)
+        elif "location" in message or "where" in message:
+            await self.location_command(update, context)
+        elif "hours" in message or "open" in message:
+            await self.hours_command(update, context)
+        else:
+            await update.message.reply_text("I'm not sure how to help with that. Type /help to see what I can do!")
 
     async def callback_query_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
-        data = query.data
+        if query.data == "menu":
+            await query.edit_message_text(self.config.get_menu_text(), parse_mode='Markdown')
+        elif query.data == "location":
+            await query.edit_message_text(self.config.get_location_text(), parse_mode='Markdown')
+        elif query.data == "hours":
+            await query.edit_message_text(self.config.get_hours_text(), parse_mode='Markdown')
 
-        keyboard_back = [[InlineKeyboardButton("⬅ Back", callback_data="start")]]
-        reply_markup = InlineKeyboardMarkup(keyboard_back)
-
-        if data == "menu":
-            await query.edit_message_text(self.config.get_menu_text(), reply_markup=reply_markup)
-        elif data == "location":
-            await query.edit_message_text(self.config.get_location_text(), reply_markup=reply_markup)
-        elif data == "hours":
-            await query.edit_message_text(self.config.get_hours_text(), reply_markup=reply_markup)
-        elif data == "start":
-            keyboard = [[InlineKeyboardButton("📋 Menu", callback_data='menu'),
-                         InlineKeyboardButton("📍 Location", callback_data='location'),
-                         InlineKeyboardButton("🕘 Hours", callback_data='hours')]]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await query.edit_message_text("Welcome to Brownies Café!", reply_markup=reply_markup)
-
-    async def error_handler(self, update, context):
-        print(f"Update {update} caused error {context.error}")
+    async def error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE):
+        self.logger.error(msg="Exception while handling an update:", exc_info=context.error)
