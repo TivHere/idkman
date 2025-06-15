@@ -1,4 +1,4 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 class BotHandlers:
@@ -16,8 +16,7 @@ class BotHandlers:
         await context.bot.send_photo(
             chat_id=chat_id,
             photo=self.config.MAIN_PHOTO_URL,
-            caption="🍫 Welcome to Brownies Café!
-Tap below to begin:",
+            caption="🍫 Welcome to Brownies Café!\nTap below to begin:",
             reply_markup=reply_markup
         )
 
