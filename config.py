@@ -3,7 +3,7 @@ import os
 class Config:
     def __init__(self):
         self.BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-        self.MAIN_PHOTO_URL = "https://cdn.pixabay.com/photo/2017/04/23/20/24/brownies-2254318_1280.jpg"
+        self.MAIN_PHOTO_URL = "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=80"
         self.MENU = {
             "☕ Hot Drinks": [
                 "Sea Salt Caramel Latte - RM 12",
