@@ -78,7 +78,14 @@ class BotHandlers:
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="back")]])
             )
         elif query.data == "back":
-            await self.start_command(update, context)
+            await query.edit_message_text(
+                text=self.config.FIRST_TIME_MESSAGE,
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("View Menu 🍽️", callback_data="menu")],
+                    [InlineKeyboardButton("Opening Hours 🕘", callback_data="hours")],
+                    [InlineKeyboardButton("Location 📍", callback_data="location")]
+                ])
+            )
 
     async def error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE):
         self.logger.error(msg="Exception while handling an update:", exc_info=context.error)
