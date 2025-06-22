@@ -9,11 +9,6 @@ class BotHandlers:
         self.logger = logging.getLogger(__name__)
 
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        # Send welcome image
-        await update.message.reply_photo(
-            photo="https://via.placeholder.com/600x300.png?text=Welcome+to+Brownies+Cafe+Bot"
-        )
-        # Send welcome text and options
         await update.message.reply_text(
             self.config.FIRST_TIME_MESSAGE,
             reply_markup=InlineKeyboardMarkup([
