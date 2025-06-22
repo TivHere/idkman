@@ -3,13 +3,7 @@ import os
 class Config:
     def __init__(self):
         self.BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-        self.CAFE_NAME = "Brownies Café"
-        self.OPENING_HOURS = "Mon–Sun: 9AM – 9PM"
-        self.LOCATION = "123 Jalan Brownies, KL"
-        self.PHONE = "+60 3-1234 5678"
-        self.EMAIL = "hello@browniescafe.com"
         self.MAIN_PHOTO_URL = "https://cdn.pixabay.com/photo/2017/04/23/20/24/brownies-2254318_1280.jpg"
-
         self.MENU = {
             "☕ Hot Drinks": [
                 "Sea Salt Caramel Latte - RM 12",
@@ -20,15 +14,19 @@ class Config:
                 "Salted Caramel - RM 10"
             ]
         }
+        self.LOCATION = "123 Jalan Brownies, KL"
+        self.PHONE = "+60 3-1234 5678"
+        self.EMAIL = "hello@browniescafe.com"
+        self.OPENING_HOURS = "Mon–Sun: 9AM – 9PM"
 
     def get_menu_text(self):
-        menu_text = "📋 *Menu*\n\n"
+        menu_text = "*📋 Menu*\n\n"
         for category, items in self.MENU.items():
             menu_text += f"*{category}*\n"
             for item in items:
                 menu_text += f"• {item}\n"
             menu_text += "\n"
-        return menu_text
+        return menu_text.strip()
 
     def get_location_text(self):
         return f"📍 *Location*\n\n{self.LOCATION}\n📞 {self.PHONE}\n✉️ {self.EMAIL}"
