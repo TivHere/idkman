@@ -1,18 +1,32 @@
+import os
+import sys
 import logging
-from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
-from config import Config
-from handlers import BotHandlers
+from bot import BrowniesCafeBot
+from keep_alive import keep_alive
 
-logging.basicConfig(level=logging.INFO)
-config = Config()
-bot_app = Application.builder().token(config.BOT_TOKEN).build()
-handlers = BotHandlers(config)
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('bot.log', mode='a')
+        ]
+    )
 
-bot_app.add_handler(CommandHandler("start", handlers.start_command))
-bot_app.add_handler(CallbackQueryHandler(handlers.callback_query_handler))
-bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.handle_message))
-bot_app.add_error_handler(handlers.error_handler)
+def main():
+    try:
+        setup_logging()
+        logger = logging.getLogger(__name__)
+        logger.info("Starting Brownies Café Bot...")
+        keep_alive()  # For Replit/Render
+        bot = BrowniesCafeBot()
+        bot.start()
+    except KeyboardInterrupt:
+        logger.info("Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Fatal error occurred: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    logging.info("✅ Bot is starting...")
-    bot_app.run_polling()
+    main()

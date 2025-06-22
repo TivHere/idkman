@@ -1,3 +1,4 @@
+
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
@@ -7,52 +8,81 @@ class BotHandlers:
         self.config = config
         self.logger = logging.getLogger(__name__)
 
-    def main_menu(self):
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("📋 View Menu", callback_data="menu")],
-            [InlineKeyboardButton("📍 Location", callback_data="location")],
-            [InlineKeyboardButton("🕘 Hours", callback_data="hours")]
-        ])
-
-    def back_button(self):
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("⬅ Back", callback_data="start")]
-        ])
-
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await context.bot.send_photo(
-            chat_id=update.effective_chat.id,
-            photo=self.config.MAIN_PHOTO_URL,
-            caption="🍫 Welcome to Brownies Café!\nTap a button below:",
-            reply_markup=self.main_menu()
+        # Send welcome image
+        await update.message.reply_photo(
+            photo="https://via.placeholder.com/600x300.png?text=Welcome+to+Brownies+Cafe+Bot"
+        )
+        # Send welcome text and options
+        await update.message.reply_text(
+            self.config.FIRST_TIME_MESSAGE,
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("View Menu 🍽️", callback_data="menu")],
+                [InlineKeyboardButton("Opening Hours 🕘", callback_data="hours")],
+                [InlineKeyboardButton("Location 📍", callback_data="location")]
+            ])
         )
 
     async def menu_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(self.config.get_menu_text(), parse_mode='Markdown')
+        await update.message.reply_text(
+            self.config.get_menu_text(),
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 Back", callback_data="back")]
+            ])
+        )
 
     async def location_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(self.config.get_location_text(), parse_mode='Markdown')
+        await update.message.reply_text(
+            self.config.get_location_text(),
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 Back", callback_data="back")]
+            ])
+        )
 
     async def hours_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(self.config.get_hours_text(), parse_mode='Markdown')
+        await update.message.reply_text(
+            self.config.get_hours_text(),
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 Back", callback_data="back")]
+            ])
+        )
 
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(self.config.WELCOME_MESSAGE)
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await self.start_command(update, context)
+        message = update.message.text.lower()
+        if "menu" in message:
+            await self.menu_command(update, context)
+        elif "location" in message or "where" in message:
+            await self.location_command(update, context)
+        elif "hours" in message or "open" in message:
+            await self.hours_command(update, context)
+        else:
+            await update.message.reply_text("I'm not sure how to help with that. Type /help to see what I can do!")
 
     async def callback_query_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
-
         if query.data == "menu":
-            await query.edit_message_text(self.config.get_menu_text(), parse_mode='Markdown', reply_markup=self.back_button())
+            await query.edit_message_text(
+                self.config.get_menu_text(), parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="back")]])
+            )
         elif query.data == "location":
-            await query.edit_message_text(self.config.get_location_text(), parse_mode='Markdown', reply_markup=self.back_button())
+            await query.edit_message_text(
+                self.config.get_location_text(), parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="back")]])
+            )
         elif query.data == "hours":
-            await query.edit_message_text(self.config.get_hours_text(), parse_mode='Markdown', reply_markup=self.back_button())
-        elif query.data == "start":
+            await query.edit_message_text(
+                self.config.get_hours_text(), parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="back")]])
+            )
+        elif query.data == "back":
             await self.start_command(update, context)
 
     async def error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE):
